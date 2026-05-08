@@ -15,7 +15,7 @@ export async function createUserToken(payload) {
 
     const payloadValidationData=validationResult.data;
 
-    const token=jwt.sign(payloadValidationData,JWT_SECRET);
+    const token=jwt.sign(payloadValidationData,JWT_SECRET, { expiresIn: '1h' });
 
     return token;
     
@@ -25,9 +25,12 @@ export function validateUserToken(token){
     try {
 
         const payload=jwt.verify(token,JWT_SECRET);
-        return payload
+        return { payload, expired: false };
         
     } catch (error) {
-        return null
+        if (error.name === 'TokenExpiredError') {
+            return { payload: null, expired: true };
+        }
+        return { payload: null, expired: false };
     }
 }
